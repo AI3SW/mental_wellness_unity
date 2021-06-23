@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.Events;
 
 namespace UnityDecoupledBehavior
 {
     public class PageController : MonoBehaviour
     {
+        Stack<int> pageNumberStack;
         public List<CanvasGroup> pageList;
         public int current
         {
@@ -17,7 +19,9 @@ namespace UnityDecoupledBehavior
         bool inTransition;
         public CanvasGroup firstPage;
 
-        /*
+        UnityEvent OnAppQuitPrompt;
+        UnityEvent OnGameQuitPrompt;
+        
         [System.Serializable]
         public enum pageName
         {
@@ -28,26 +32,29 @@ namespace UnityDecoupledBehavior
             Game_Prize,
             WellWishes_Send,
             WellWishes_Result,
-        }*/
+        }
 
         // Start is called before the first frame update
         void Awake()
         {
+            pageNumberStack = new Stack<int>();
             foreach (CanvasGroup page in pageList)
             {
                 deactivatePage(page);
             }
             firstPage = pageList[current];
+            activatePage(firstPage);
         }
 
         // Update is called once per frame
         void Update()
         {
-            /*
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            //For android back button
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                transitPage((int)pageName.Game_Screensaver);
+                prevPage();
             }
+            /*
             if (Input.GetKeyDown(KeyCode.Alpha2))
             {
                 transitPage((int)pageName.Game_Instruction);
@@ -64,11 +71,16 @@ namespace UnityDecoupledBehavior
 
         public void transitPage(int nextPageId)
         {
-            if ((int)nextPageId == current || inTransition) return;
+            transitPage(pageList[nextPageId]);
+        }
+        public void transitPage(CanvasGroup nextPage)
+        {
+            CanvasGroup currPage = pageList[current];
+            if (nextPage == currPage ) return;
             else
             {
                 inTransition = true;
-                CanvasGroup currPage = pageList[current];
+                
 
                 currPage.DOFade(0, 0.5f).OnComplete(() =>
                 {
@@ -78,7 +90,6 @@ namespace UnityDecoupledBehavior
                 currPage.blocksRaycasts = false;
                 currPage.interactable = false;
 
-                CanvasGroup nextPage = pageList[(int)nextPageId];
                 nextPage.gameObject.SetActive(true);
                 nextPage.DOFade(1, 0.5f).OnComplete(() =>
                 {
@@ -86,10 +97,10 @@ namespace UnityDecoupledBehavior
                     nextPage.interactable = true;
                     inTransition = false;
                 });
-                current = (int)nextPageId;
+
+                current = pageList.FindIndex((CanvasGroup x) => { return nextPage == x;  });
             }
         }
-
         void deactivatePage(CanvasGroup page)
         {
             page.alpha = 0;
@@ -103,6 +114,50 @@ namespace UnityDecoupledBehavior
             page.blocksRaycasts = true;
             page.interactable = true;
             page.gameObject.SetActive(true);
+        }
+
+        public void nextPage(int nextPageId)
+        {
+            Debug.Log("pressed");
+            if (inTransition) return;
+            transitPage(nextPageId);
+            pageNumberStack.Push(nextPageId);
+        }
+        public void prevPage()
+        {
+            int prevNum = 0;
+            //Debug.Log("Prev Page");
+            Debug.Log(pageNumberStack.Count);
+            if (inTransition) return;
+            if (isInGame()) {
+                Debug.Log("prompt game quit Page");
+                OnGameQuitPrompt?.Invoke();
+                return;
+            }
+            if (pageNumberStack.Count > 0)
+            {
+                Debug.Log("Prev Page");
+                prevNum = pageNumberStack.Pop();
+                transitPage(prevNum);
+            } else
+            {
+                if(pageList[current] != firstPage)
+                {
+                    Debug.Log("home Page");
+                    transitPage(firstPage);
+                } else
+                {
+                    Debug.Log("prompt quit app Page");
+                    OnAppQuitPrompt?.Invoke();
+                }
+                
+            }
+        }
+
+        public bool isInGame()
+        {
+            CanvasGroup currentPage = pageList[current];
+            return currentPage.gameObject.name.StartsWith("Game") && firstPage != currentPage;
         }
     }
 

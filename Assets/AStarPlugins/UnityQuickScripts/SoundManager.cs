@@ -174,7 +174,7 @@ namespace UnityDecoupledBehavior
             fadeList = new Dictionary<AudioSource, AudioFadeSettings>();
             fadeList.Add(BGM_SoundSrc, new AudioFadeSettings(BGM_SoundSrc));
             fadeList.Add(SFX_SoundSrc, new AudioFadeSettings(SFX_SoundSrc));
-            PlayBGM(0);
+            //PlayBGM(0);
             BGMVolume = ScreensaverVol;
             MasterVolume = mainVol;
 
@@ -185,7 +185,7 @@ namespace UnityDecoupledBehavior
         {
             if (index >= listOfAudio.Count || index < 0)
             {
-                Debug.LogError("Invalid Index");
+                Debug.LogError("Invalid Index For -PlayAudioSource");
                 return;
             }
 
