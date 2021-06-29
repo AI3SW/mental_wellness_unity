@@ -19,8 +19,8 @@ namespace UnityDecoupledBehavior
         bool inTransition;
         public CanvasGroup firstPage;
 
-        UnityEvent OnAppQuitPrompt;
-        UnityEvent OnGameQuitPrompt;
+        public UnityEvent OnAppQuitPrompt;
+        public UnityEvent OnGameQuitPrompt;
         
         [System.Serializable]
         public enum pageName
@@ -99,6 +99,7 @@ namespace UnityDecoupledBehavior
                 });
 
                 current = pageList.FindIndex((CanvasGroup x) => { return nextPage == x;  });
+
             }
         }
         void deactivatePage(CanvasGroup page)

@@ -5,7 +5,7 @@ using System;
 using UnityEngine.UI;
 public class WebcamController : MonoBehaviour
 {
-	private bool camAvailable;
+	private bool camIsLive;
 	private WebCamTexture cameraTexture;
 	private Texture defaultBackground;
 
@@ -38,16 +38,16 @@ public class WebcamController : MonoBehaviour
 				int shorterSide = (Screen.width > Screen.height) ? Screen.height : Screen.width;
 				//Debug.Log(shorterSide);
 				cameraTexture = new WebCamTexture(curr.name, shorterSide, shorterSide);
-				Debug.Log(name);
+				//Debug.Log(name);
 				break;
 			}
 		}
 		//Debug.Log((float)Screen.width);
 		//Debug.Log((float)Screen.height);
-		Debug.Log(cameraTexture.name);
+		//Debug.Log(cameraTexture.name);
 		if (cameraTexture == null)
 			return;
-		Debug.Log("test");
+		//Debug.Log("test");
 		//PlayCamera();
 
 
@@ -55,9 +55,17 @@ public class WebcamController : MonoBehaviour
 		//Debug.Log((float)cameraTexture.height);
 	}
 
-	public string getWebcamTextureString(ImageFormat format)
+	public bool IsScreenshotReady()
     {
-		string ImageString = "";
+		return camIsLive;
+    }
+	/// <summary>
+	/// Access imagestring to get the imagestring
+	/// </summary>
+	/// <param name="format"></param>
+	public void getWebcamTextureString(ImageFormat format)
+    {
+		imagestring = "";
 		Texture2D snap = new Texture2D(cameraTexture.width, cameraTexture.height);
 		snap.SetPixels(cameraTexture.GetPixels());
 		snap.Apply();
@@ -65,21 +73,20 @@ public class WebcamController : MonoBehaviour
 		switch (format)
         {
 			case ImageFormat.JPEG:
-				ImageString = Convert.ToBase64String(snap.EncodeToJPG());
+				imagestring = Convert.ToBase64String(snap.EncodeToJPG());
 				break;
 			case ImageFormat.PNG:
-				ImageString = Convert.ToBase64String(snap.EncodeToPNG());
+				imagestring = Convert.ToBase64String(snap.EncodeToPNG());
 				break;
 
         }
-		return ImageString;
 	}
 
 	public void PlayCamera()
     {
 		Debug.Log("Play");
 		cameraTexture.Play(); // Start the camera
-		camAvailable = true; // Set the camAvailable for future purposes.
+		camIsLive = true;
 
 		float ratio = (float)cameraTexture.width / (float)cameraTexture.height;
 
@@ -103,16 +110,19 @@ public class WebcamController : MonoBehaviour
 	}
 	public void StopCamera()
 	{
-		Debug.Log("Stop");
-		cameraTexture.Stop();
-		camAvailable = false;
+		if(camIsLive)
+        {
+			Debug.Log("Stop");
+			cameraTexture.Stop();
+			camIsLive = false;
+		}
 	}
 	// Update is called once per frame
 	void Update()
 	{
 		if(Input.GetKeyDown(KeyCode.P))
         {
-			if(camAvailable)
+			if(camIsLive)
             {
 				StopCamera();
 
@@ -123,8 +133,19 @@ public class WebcamController : MonoBehaviour
 			}
 
 		}
-		if (!camAvailable)
-			return;
 
+
+		if (!camIsLive)
+			return;
+		
+		if(Input.GetKeyDown(KeyCode.T))
+        {
+			getWebcamTextureString(ImageFormat.JPEG);
+			Debug.Log(imagestring);
+			GUIUtility.systemCopyBuffer = imagestring;
+		}
+		
 	}
+
+
 }

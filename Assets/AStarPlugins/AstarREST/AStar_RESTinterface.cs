@@ -87,6 +87,11 @@ namespace Astar.REST
             get;
             private set;
         }
+        public static string sessionID
+        {
+            get;
+            private set;
+        }
         public bool debugOn = true;
         // Change this as when needed
         public Options serverInfo;
@@ -221,8 +226,8 @@ namespace Astar.REST
             await new WaitUntil(() => { return request.isDone; }); // artifical wait 
             if (debugOn)
                 Debug.Log("Request Receive from url: " + request.url +
-                "\nNetworkError: " + request.isNetworkError +
-                "\nHttpError: " + request.isHttpError +
+                //"\nNetworkError: " + request.isNetworkError +
+                //"\nHttpError: " + request.isHttpError +
                 "\ndata: " + request.downloadHandler.text +
                 "\nResponseCode: " + request.responseCode);
 
@@ -265,8 +270,8 @@ namespace Astar.REST
             await new WaitUntil(() => { return request.isDone; }); // artifical wait 
             if (debugOn)
                 Debug.Log("Request Receive from url: " + request.url +
-                "\nNetworkError: " + request.isNetworkError +
-                "\nHttpError: " + request.isHttpError +
+                //"\nNetworkError: " + request.isNetworkError +
+                //"\nHttpError: " + request.isHttpError +
                 "\ndata: " + request.downloadHandler.text +
                 "\nResponseCode: " + request.responseCode);
             if (debugOn)
@@ -291,7 +296,7 @@ namespace Astar.REST
         {
             gUID = Guid.NewGuid().ToString();
             device_ID = SystemInfo.deviceUniqueIdentifier;
-            //sessionID = GUID + DUID;
+            sessionID = gUID + device_ID;
             if (debugOn)
             {
                 //Debug.Log(sessionID);
