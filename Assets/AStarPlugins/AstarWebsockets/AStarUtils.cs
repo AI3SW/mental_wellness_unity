@@ -91,20 +91,47 @@ namespace Astar.Utils
                 return null;
             }
         }
-
+        public static string loadStringTextfromFile(string filepath)
+        {
+            if (File.Exists(Application.persistentDataPath + filepath))
+            {
+                //Debug.Log(Application.persistentDataPath + filepath);
+                return File.ReadAllText(Application.persistentDataPath + filepath);
+            }
+            else
+            {
+                return null;
+            }
+        }
         public static bool saveDataToFile(string directoryPath, string filepath, string data)
         {
             bool succesfullySaved = false;
 
 
-            try
+            try //Try create Directory
             {
-                if (!File.Exists(Application.persistentDataPath + filepath))
+                if (!Directory.Exists(Application.persistentDataPath + directoryPath))
                 {
                     Directory.CreateDirectory(Application.persistentDataPath + directoryPath);
-                    using ( File.Create(Application.persistentDataPath + filepath) );
                 }
-                File.WriteAllText(Application.persistentDataPath + filepath, data);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"ERROR - {ex.StackTrace}\n\n ErrorMessage - {ex.Message}");
+                Exception innerE = ex;
+                while ((innerE = innerE.InnerException) != null)
+                {
+                    Debug.LogWarning($"ERROR - {ex.InnerException.StackTrace}\n\n ErrorMessage - {ex.InnerException.Message}");
+                }
+                succesfullySaved = false;
+            }
+            try //Try create File
+            { 
+            if (!File.Exists(Application.persistentDataPath + directoryPath + filepath) )
+                {
+                    using ( File.Create(Application.persistentDataPath + directoryPath + filepath) );
+                }
+                File.WriteAllText(Application.persistentDataPath + directoryPath + filepath, data);
                 succesfullySaved = true;
             }
             catch (System.Exception ex)

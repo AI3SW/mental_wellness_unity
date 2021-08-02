@@ -11,12 +11,13 @@ public class StarGan_Controller : MonoBehaviour
     public enum Source
     {
         Free = 0,
+        Test ,
+        Free2
     }
 
     [SerializeField]
     private Source _selectedSrc;
 
-    public TextMeshProUGUI _textbox;
     public Source selectedSrc
     {
         get
@@ -31,7 +32,7 @@ public class StarGan_Controller : MonoBehaviour
     }
 
     private StarGanInterface selectedAI;
-    public event Action<Astar.REST.StarGan.Output> On_Receive_Results;
+    public event Action<Astar.REST.FaceTech.Output> On_Receive_Results;
     public List<GameObject> AIModels;
     // Start is called before the first frame update
     void Start()
@@ -40,7 +41,7 @@ public class StarGan_Controller : MonoBehaviour
     }
 
 
-    public void Process_Results(Astar.REST.StarGan.Output data)
+    public void Process_Results(Astar.REST.FaceTech.Output data)
     {
         //_textbox.text = "Debug : " + data;
         On_Receive_Results?.Invoke(data);

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-namespace Astar.REST.StarGan
+namespace Astar.REST.FaceTech
 {
 
     [System.Serializable]

@@ -7,7 +7,9 @@ using Astar.REST;
 
 public class StarGanFree : MonoBehaviour , StarGanInterface
 {
-    public event Action<Astar.REST.StarGan.Output> On_Receive_Results;
+
+
+    public event Action<Astar.REST.FaceTech.Output> On_Receive_Results;
     private RESTinterface RESTServer;
     private Options _serverOptions;
 
@@ -50,16 +52,16 @@ public class StarGanFree : MonoBehaviour , StarGanInterface
     {
         RESTServer.EndSession();
     }
-    async public Task<bool> SendStarGan(string imgstr,int style_id)
+    async public Task<bool> SendStarGan(string imgstr, int style_id)
     {
-        Astar.REST.StarGan.Input jsonObject = new Astar.REST.StarGan.Input();
+        Astar.REST.FaceTech.Input jsonObject = new Astar.REST.FaceTech.Input();
         jsonObject.img = imgstr;
         jsonObject.session_id = RESTinterface.sessionID;
         jsonObject.style_id = style_id;
-        var connectionResult = await RESTServer.PostJsonResult<Astar.REST.StarGan.Output, Astar.REST.StarGan.Input>("predict", jsonObject);
+        var connectionResult = await RESTServer.PostJsonResult<Astar.REST.FaceTech.Output, Astar.REST.FaceTech.Input>("predict", jsonObject);
 
         bool isConnected = (connectionResult != null && connectionResult.isConnected);
-        if(isConnected)
+        if (isConnected)
         {
             Debug.Log(connectionResult.jsonData);
             //if (photo not valid) {
@@ -67,9 +69,10 @@ public class StarGanFree : MonoBehaviour , StarGanInterface
             //} else {
             On_Receive_Results?.Invoke(connectionResult.jsonData);
             //}
-        } 
+        }
         return connectionResult.isConnected;
     }
+
 
 
 }

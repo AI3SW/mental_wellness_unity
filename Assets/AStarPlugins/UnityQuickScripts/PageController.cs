@@ -10,14 +10,14 @@ namespace UnityDecoupledBehavior
     public class PageController : MonoBehaviour
     {
         Stack<int> pageNumberStack;
-        public List<CanvasGroup> pageList;
+        public List<PageElement> pageList;
         public int current
         {
             get;
             private set;
         }
         bool inTransition;
-        public CanvasGroup firstPage;
+        public PageElement firstPage;
 
         public UnityEvent OnAppQuitPrompt;
         public UnityEvent OnGameQuitPrompt;
@@ -26,24 +26,28 @@ namespace UnityDecoupledBehavior
         public enum pageName
         {
             Game_Screensaver = 0,
-            Game_Instruction,
-            Game_Game,
-            Game_Result,
-            Game_Prize,
-            WellWishes_Send,
-            WellWishes_Result,
+            Game_PhotoTaking,
+            Game_AvatarSelection,
+            Game_Scenario,
+            Game_Ending,
+            Share_Selection,
+            Share_Progress,
+            Content_Main,
+            Content_SelectedTopic,
+            Options
         }
 
         // Start is called before the first frame update
         void Awake()
         {
             pageNumberStack = new Stack<int>();
-            foreach (CanvasGroup page in pageList)
+            foreach (PageElement page in pageList)
             {
-                deactivatePage(page);
+                page.canvaPage = page.GetComponent<CanvasGroup>();
+                page.deactivatePage();
             }
             firstPage = pageList[current];
-            activatePage(firstPage);
+            firstPage.activatePage();
         }
 
         // Update is called once per frame
@@ -52,7 +56,7 @@ namespace UnityDecoupledBehavior
             //For android back button
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                prevPage();
+                goPrevPage();
             }
             /*
             if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -73,58 +77,58 @@ namespace UnityDecoupledBehavior
         {
             transitPage(pageList[nextPageId]);
         }
-        public void transitPage(CanvasGroup nextPage)
+        public void transitPage(PageElement nextPage)
         {
-            CanvasGroup currPage = pageList[current];
+            PageElement currPage = pageList[current];
             if (nextPage == currPage ) return;
             else
             {
                 inTransition = true;
-                
 
-                currPage.DOFade(0, 0.5f).OnComplete(() =>
+                
+                currPage.fadePage(0, 0.5f, () =>
                 {
                     currPage.gameObject.SetActive(false);
                     inTransition = false;
+                    currPage.TransitOut?.Invoke();
                 });
-                currPage.blocksRaycasts = false;
-                currPage.interactable = false;
+                currPage.deactivatePageInteraction();
 
                 nextPage.gameObject.SetActive(true);
-                nextPage.DOFade(1, 0.5f).OnComplete(() =>
+                nextPage.fadePage(1, 0.5f, () =>
                 {
-                    nextPage.blocksRaycasts = true;
-                    nextPage.interactable = true;
+                    nextPage.activatePageInteraction();
                     inTransition = false;
+                    nextPage.TransitIn?.Invoke();
                 });
 
-                current = pageList.FindIndex((CanvasGroup x) => { return nextPage == x;  });
+                current = pageList.FindIndex((PageElement x) => { return nextPage == x;  });
 
             }
         }
-        void deactivatePage(CanvasGroup page)
-        {
-            page.alpha = 0;
-            page.blocksRaycasts = false;
-            page.interactable = false;
-            page.gameObject.SetActive(false);
-        }
-        public void activatePage(CanvasGroup page)
-        {
-            page.alpha = 1;
-            page.blocksRaycasts = true;
-            page.interactable = true;
-            page.gameObject.SetActive(true);
-        }
 
-        public void nextPage(int nextPageId)
+        public void goNextBufferedPage()
+        {
+            if(nextPage >= 0)
+            {
+                goNextPage(nextPage);
+                nextPage = -1;
+            }
+            else
+            {
+                Debug.LogError("page error");
+            }
+
+
+        }
+        public void goNextPage(int nextPageId)
         {
             Debug.Log("pressed");
             if (inTransition) return;
             transitPage(nextPageId);
             pageNumberStack.Push(nextPageId);
         }
-        public void prevPage()
+        public void goPrevPage()
         {
             int prevNum = 0;
             //Debug.Log("Prev Page");
@@ -132,6 +136,7 @@ namespace UnityDecoupledBehavior
             if (inTransition) return;
             if (isInGame()) {
                 Debug.Log("prompt game quit Page");
+                nextPage = (int)pageName.Game_Screensaver;
                 OnGameQuitPrompt?.Invoke();
                 return;
             }
@@ -155,9 +160,27 @@ namespace UnityDecoupledBehavior
             }
         }
 
+        int nextPage;
+        public void checkBeforeGoNextPage(int pageNum)
+        {
+            nextPage = pageNum;
+            if (inTransition) return;
+            if (isInGame())
+            {
+                Debug.Log("prompt game quit Page");
+                OnGameQuitPrompt?.Invoke();
+                return;
+            } else
+            {
+                goNextPage(pageNum);
+            }
+        }
+
         public bool isInGame()
         {
-            CanvasGroup currentPage = pageList[current];
+            PageElement currentPage = pageList[current];
+
+            //hardcode
             return currentPage.gameObject.name.StartsWith("Game") && firstPage != currentPage;
         }
     }

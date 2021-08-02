@@ -8,7 +8,7 @@ public interface StarGanInterface
     /// @TODO, you will need to invoke it when the string is returned to you. 
     /// IE: On_ReceiveASR_Results?.invoke(data);
     /// </summary>
-    event Action<Astar.REST.StarGan.Output> On_Receive_Results;
+    event Action<Astar.REST.FaceTech.Output> On_Receive_Results;
 
     /// <summary>
     /// Sends the photo image to the respective AI models for StarGan
