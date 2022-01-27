@@ -4,6 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks; // Task, is an object that handles threads, in essence its the same as a Coroutine
 using System;
+#if UNITY_ANDROID
+using UnityEngine.Android;
+#endif
+#if UNITY_IOS
+using UnityEngine.iOS;
+#endif
 public class AppManager : MonoBehaviour
 {
     public StarGan_Controller StarganController;
@@ -17,19 +23,58 @@ public class AppManager : MonoBehaviour
 
     public ErrorPage ePage;
     public GameObject LoadingPage;
-    private void Awake()
+
+    IEnumerator getPermissionIOS()
+    {
+        yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
+        if (Application.HasUserAuthorization(UserAuthorization.WebCam))
+        {
+            onPermissionGranted("PermissionGranted");
+        }
+    }
+    void checkPermission()
+    {
+        Debug.Log("checkingPerms");
+#if UNITY_EDITOR
+        onPermissionGranted("Initiating Camera");
+#elif UNITY_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.Camera))
+        {
+            PermissionCallbacks androidCallBack = new PermissionCallbacks();
+            androidCallBack.PermissionGranted += onPermissionGranted;
+            Permission.RequestUserPermission(Permission.Camera, androidCallBack);
+            
+        } else {
+            onPermissionGranted("Initiating Camera");
+        }
+#elif UNITY_IOS
+        StartCoroutine(getPermissionIOS());
+
+#endif
+    }
+
+    void onPermissionGranted(string msg)
+    {
+        Debug.Log(msg);
+        WCcontroller.InitCamera();
+        Debug.Log("webcam found");
+    }
+
+    private void Start()
     {
         StarganController.On_Receive_Results += OnReceiveResults;
         AvatarManager.LoadData(directoryPath+ filename);
+        checkPermission();
     }
 
-    public void OnReceiveResults(Astar.REST.FaceTech.Output data)
+    public void OnReceiveResults(AICUBE.REST.FaceTech.Output data)
     {
         //process json calls functions accordingly
         Debug.Log(data);
 
-        if (data != null)
+        if (data != null && !string.IsNullOrEmpty( data.output_img) )
         {
+
             AvatarManager.UpdateAIPotrait(data.output_img);
             ScenarioController.ScenarioStart();
             Debug.Log("data processed");
@@ -44,7 +89,7 @@ public class AppManager : MonoBehaviour
     {
         if (WCcontroller.IsScreenshotReady())
         {
-            WCcontroller.getWebcamTextureString(WebcamController.ImageFormat.JPEG);
+            WCcontroller.generateWebcamTextureString(WebcamController.ImageFormat.JPEG);
             //WCcontroller.StopCamera();
             AvatarManager.UpdateTakenPotrait();
             PgController.transitPage(PgController.current + 1);
@@ -76,7 +121,7 @@ public class AppManager : MonoBehaviour
         }
         else
         {
-            Sendpicture.interactable = false;
+            Sendpicture.interactable = true;
             ePage.Activate("Unable To Connect, Please Check ur Connectoin");
             Debug.Log("data not processed");
         }
@@ -86,17 +131,21 @@ public class AppManager : MonoBehaviour
     public void UpdateUnlockStatusAndShowProgressionPage()
     {
         Debug.Log("update");
-        if(OnGoingSession)
+        AvatarManager.loadingShareUI(OnGoingSession);
+        if (OnGoingSession)
         {
             ShareNextButton.gameObject.SetActive(true);
             AvatarManager.UnlockAvatarResult();
             AvatarManager.SaveData(directoryPath, filename);
             //disable the button
+
             EndSession();
         } else
         {
             ShareNextButton.gameObject.SetActive(false);
+            
         }
+        
     }
 
   public  bool OnGoingSession;

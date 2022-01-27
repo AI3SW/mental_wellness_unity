@@ -53,19 +53,19 @@ public class AvatarHolder : MonoBehaviour
     {
         _frame.color = Selected;
         _rect.localScale = Vector3.one;
-        Debug.Log(_name.text + "activated");
+        //Debug.Log(_name.text + "activated");
     }
     public void setUnselectedLockedColor()
     {
         _frame.color = Unselected_locked;
         _rect.localScale = Vector3.one * 0.9f;
-        Debug.Log(_name.text + "deactivated");
+        //Debug.Log(_name.text + "deactivated");
     }
     public void setUnselectedUnlockedColor()
     {
         _frame.color = Unselected_unlocked;
         _rect.localScale = Vector3.one * 0.9f;
-        Debug.Log(_name.text + "deactivated");
+        //Debug.Log(_name.text + "deactivated");
     }
 
     public void setBtnInteractable(bool val)

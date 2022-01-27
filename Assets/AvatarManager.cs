@@ -57,7 +57,10 @@ public class AvatarManager : MonoBehaviour
     [SerializeField]
     private RawImage OriginalPotraitHolder;
     [SerializeField]
-    private RawImage AIPotraitHolder;
+    private RawImage ScenarioPotraitHolder;
+    [SerializeField]
+    private RawImage EndPotraitHolder;
+
     [SerializeField]
     private RawImage SharePotraitHolder;
     [SerializeField]
@@ -71,6 +74,7 @@ public class AvatarManager : MonoBehaviour
     void Awake()
     {
         //Debug.Log(Convert.ToBase64String(AvatarList[0].img.texture.EncodeToPNG()) );
+
         Create_holderParent.sizeDelta = new Vector2(Mathf.Abs(Create_holderParent.rect.y)* AvatarList.Count , Create_holderParent.sizeDelta.y);
         Share_holderParent.sizeDelta = new Vector2(Mathf.Abs(Share_holderParent.rect.y) * AvatarList.Count, Share_holderParent.sizeDelta.y);
 
@@ -103,9 +107,9 @@ public class AvatarManager : MonoBehaviour
     {
         doAllButton(AvatarList[0].id, AvatarHolders_Create, true);
     }
-    public void loadingShareUI()
+    public void loadingShareUI(bool inSession )
     {
-        int id = getFirstUnlocked();
+        int id = (inSession) ?  currentSelectedId : getFirstUnlocked();
         if (id == -1) return;
         doAllButton(id, AvatarHolders_Share, false);
     }
@@ -149,12 +153,12 @@ public class AvatarManager : MonoBehaviour
 
             if(AvatarList[i].unlocked)
             {
-                Debug.Log(AvatarList[i].name + "is unlocked");
+                //Debug.Log(AvatarList[i].name + "is unlocked");
                 avatars[AvatarList[i].id].setUnselectedUnlockedColor(); //green
                 avatars[AvatarList[i].id].setBtnInteractable(true);
             } else
             {
-                Debug.Log(AvatarList[i].name + "is locked and" + btnInteractable);
+                //Debug.Log(AvatarList[i].name + "is locked and" + btnInteractable);
                 avatars[AvatarList[i].id].setUnselectedLockedColor(); //red
                 avatars[AvatarList[i].id].setBtnInteractable(btnInteractable);
             }
@@ -167,10 +171,10 @@ public class AvatarManager : MonoBehaviour
         Texture2D newPhoto = new Texture2D(1, 1);
         newPhoto.LoadImage(Convert.FromBase64String(WCcontroller.imagestring));
         newPhoto.Apply();
-        float orient = WCcontroller.webcamRotation;
-        if (orient != 0) orient += 180;
+        //float orient = WCcontroller.webcamRotation;
+        //if (orient != 0) orient += 180;
         //Debug.Log(orient);
-        OriginalPotraitHolder.rectTransform.localEulerAngles = new Vector3(0, 0, orient);
+        //OriginalPotraitHolder.rectTransform.localEulerAngles = new Vector3(0, 0, orient);
         OriginalPotraitHolder.texture = newPhoto;
     }
 
@@ -206,8 +210,9 @@ public class AvatarManager : MonoBehaviour
         tempAvatar.result = new Texture2D(1, 1);
         tempAvatar.result.LoadImage(Convert.FromBase64String(imgstr));
         tempAvatar.result.Apply();
-        
-        AIPotraitHolder.texture = tempAvatar.result;
+
+        ScenarioPotraitHolder.texture = tempAvatar.result;
+        EndPotraitHolder.texture = tempAvatar.result;
 
 
     }
@@ -243,7 +248,7 @@ public class AvatarManager : MonoBehaviour
 
     public void LoadData(string filepath)
     {
-        string loadedstring = Astar.Utils.IOUtils.loadStringTextfromFile(filepath);
+        string loadedstring = AICUBE.Utils.IOUtils.loadStringTextfromFile(filepath);
 
         Debug.Log(loadedstring);
         if (string.IsNullOrEmpty(loadedstring))
@@ -279,13 +284,13 @@ public class AvatarManager : MonoBehaviour
     public void OnSelectClass(int index)
     {
         List<int> temp = getClassId(index);
-        Debug.Log("deactivating");
+        //Debug.Log("deactivating");
         foreach(var avatarHolder in AvatarHolders_Create)
         {
             avatarHolder.Value.gameObject.SetActive(false);
         }
 
-        Debug.Log("activating");
+        //Debug.Log("activating");
 
         Create_holderParent.sizeDelta = new Vector2(temp.Count * Create_holderParent.rect.height, 0);
         for (int i = 0; i < temp.Count; ++i)
@@ -304,7 +309,7 @@ public class AvatarManager : MonoBehaviour
     {
         CopyAvatarToSave();
         string jsonString = JsonUtility.ToJson(saveData);
-        Astar.Utils.IOUtils.saveDataToFile(directorypath,filename, jsonString);
+        AICUBE.Utils.IOUtils.saveDataToFile(directorypath,filename, jsonString);
     }
     public void CopyAvatarToSave()
     {

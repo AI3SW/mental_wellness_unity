@@ -29,9 +29,7 @@ public class ScenarioController : MonoBehaviour
     [SerializeField]
     private Image EndingImageUIHolder;
     [SerializeField]
-    private Image StartingImageUIHolder;
-    [SerializeField]
-    private UnityDecoupledBehavior.PageController PgController;
+    private Image ExtraThoughtsImageUIHolder;
 
     [SerializeField]
     private List<TextMeshProUGUI> answersUI;
@@ -73,12 +71,12 @@ public class ScenarioController : MonoBehaviour
     public void UpdateEnding()
     {
         EndingImageUIHolder.sprite = getEndingSprite();
+        ExtraThoughtsImageUIHolder.sprite = getEndingSprite();
         ScenarioEnding.text = getEndingLine();
     }
     public void goToEnding(int endingNum)
     {
         currentAnswer = endingNum-1;
         UpdateEnding();
-        PgController.transitPage(4);
     }
 }
