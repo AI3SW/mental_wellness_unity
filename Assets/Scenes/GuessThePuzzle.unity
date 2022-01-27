@@ -19253,7 +19253,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -648.00006, y: 0}
+  m_AnchoredPosition: {x: -648, y: 0}
   m_SizeDelta: {x: 2160, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1595674819
@@ -21369,8 +21369,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 607011380}
   m_HandleRect: {fileID: 607011379}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 0.6000001
+  m_Value: -0.00000014128513
+  m_Size: 0.59669197
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -23818,12 +23818,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1148498096701035394, guid: 07682982bbf634b44a69848909a623bb, type: 3}
       propertyPath: _selectedSrc
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1148498096701035394, guid: 07682982bbf634b44a69848909a623bb, type: 3}
       propertyPath: AIModels.Array.size
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1148498096701035394, guid: 07682982bbf634b44a69848909a623bb, type: 3}
+      propertyPath: AIModels.Array.data[0]
+      value: 
+      objectReference: {fileID: 5911173199024421262, guid: 1dc06474938020e4a993c95793c73db9, type: 3}
     - target: {fileID: 1148498096701035394, guid: 07682982bbf634b44a69848909a623bb, type: 3}
       propertyPath: AIModels.Array.data[2]
       value: 

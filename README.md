@@ -1,4 +1,4 @@
-# CNY Unity Version
+# Mental Wellness Unity Version
 
 Open Project with unity 2020.3.7f1
 
